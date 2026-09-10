@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import * as SplashScreen from 'expo-splash-screen';
+import { useEffect, useState } from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import * as SplashScreen from "expo-splash-screen";
 import {
   useFonts,
   Inter_400Regular,
@@ -12,12 +12,12 @@ import {
   Inter_600SemiBold,
   Inter_700Bold,
   Inter_800ExtraBold,
-} from '@expo-google-fonts/inter';
+} from "@expo-google-fonts/inter";
 
-import { ThemeProvider, useTheme } from '@/theme';
-import { CartIconTargetProvider, FlyToCartProvider } from '@/components';
-import { useSession } from '@/store/session';
-import { orderClock } from '@/services/api';
+import { ThemeProvider, useTheme } from "@/theme";
+import { CartIconTargetProvider, FlyToCartProvider } from "@/components";
+import { useSession } from "@/store/session";
+import { orderClock } from "@/services/api";
 
 // Hold the native splash until fonts + persisted state are ready.
 void SplashScreen.preventAutoHideAsync();
@@ -60,7 +60,8 @@ function RootNavigator({ fontsReady }: { fontsReady: boolean }) {
     return () => orderClock.stopAll();
   }, []);
 
-  const ready = fontsReady && themeHydrated && sessionHydrated && ordersRestored;
+  const ready =
+    fontsReady && themeHydrated && sessionHydrated && ordersRestored;
 
   useEffect(() => {
     if (ready) void SplashScreen.hideAsync();
@@ -68,7 +69,7 @@ function RootNavigator({ fontsReady }: { fontsReady: boolean }) {
 
   return (
     <>
-      <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+      <StatusBar style={scheme === "dark" ? "light" : "dark"} />
       <Stack
         screenOptions={{
           headerShown: false,
@@ -78,8 +79,8 @@ function RootNavigator({ fontsReady }: { fontsReady: boolean }) {
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="restaurant/[id]" />
-        <Stack.Screen name="item/[id]" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="cart" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="item/[id]" options={{ presentation: "modal" }} />
+        <Stack.Screen name="cart" options={{ presentation: "modal" }} />
         <Stack.Screen name="checkout" />
         <Stack.Screen name="order/[id]" />
       </Stack>

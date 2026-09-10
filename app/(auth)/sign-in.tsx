@@ -67,7 +67,9 @@ export default function SignIn() {
       })
       .catch(() => {
         if (active)
-          setGoogleError("Google sign-in could not complete. Check the OAuth redirect URI and try again.");
+          setGoogleError(
+            "Google sign-in could not complete. Check the OAuth redirect URI and try again.",
+          );
       })
       .finally(() => {
         if (active) setGoogleLoading(false);
@@ -96,7 +98,9 @@ export default function SignIn() {
 
   const onGoogle = async () => {
     if (isExpoGo) {
-      setGoogleError("Google sign-in is unavailable in Expo Go. Open Nawala in a development build with npx expo run:android.");
+      setGoogleError(
+        "Google sign-in is unavailable in Expo Go. Open Nawala in a development build with npx expo run:android.",
+      );
       return;
     }
     if (!request || googleLoading) return;
@@ -197,7 +201,8 @@ export default function SignIn() {
           </PressableScale>
           {isExpoGo ? (
             <Text style={styles.demoNote}>
-              Google sign-in requires a Nawala development build. Expo Go cannot receive OAuth redirects.
+              Google sign-in requires a Nawala development build. Expo Go cannot
+              receive OAuth redirects.
             </Text>
           ) : null}
           {googleError ? <Text style={styles.error}>{googleError}</Text> : null}
