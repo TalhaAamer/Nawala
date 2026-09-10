@@ -1,23 +1,33 @@
 {
   "expo": {
-    "name": "Crave",
-    "slug": "crave",
+    "name": "Nawala",
+    "owner": "talha1999",
+    "slug": "nawala",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "crave",
+    "scheme": "nawala",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "config": {
+        "googleMapsApiKey": "AIzaSyDJXQBxJ21Ld0m8zpLdaK_xQUqQpt-7hhY"
+      }
     },
     "android": {
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDJXQBxJ21Ld0m8zpLdaK_xQUqQpt-7hhY"
+        }
+      },
       "adaptiveIcon": {
         "backgroundColor": "#FF3008",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.nawala.app"
     },
     "web": {
       "output": "static",

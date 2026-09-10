@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
-import { FlatList, RefreshControl, ScrollView, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useEffect, useMemo, useState } from "react";
+import { FlatList, RefreshControl, ScrollView, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 
-import { useThemedStyles } from '@/theme';
+import { useThemedStyles } from "@/theme";
 import {
   LocationHeader,
+  AddressPickerSheet,
   SearchPillButton,
   CategoryIcon,
   Chip,
@@ -16,47 +17,56 @@ import {
   Skeleton,
   EmptyState,
   CartBar,
-} from '@/components';
-import { useCategories, useRestaurants } from '@/hooks/useApi';
-import { useCart } from '@/store/cart';
-import { useSession } from '@/store/session';
-import { useFavorites } from '@/store/favorites';
-import { loadAddresses } from '@/services/storage/addresses';
-import type { Address, RestaurantDetail, FeedSort } from '@/types';
+} from "@/components";
+import { useCategories, useRestaurants } from "@/hooks/useApi";
+import { useCart } from "@/store/cart";
+import { useSession } from "@/store/session";
+import { useFavorites } from "@/store/favorites";
+import { loadAddresses } from "@/services/storage/addresses";
+import type { Address, RestaurantDetail, FeedSort } from "@/types";
 
-type FilterKey = 'deals' | 'dashpass' | 'toprated' | 'under30' | 'free' | 'p1' | 'p2' | 'p3' | 'p4';
+type FilterKey =
+  | "deals"
+  | "dashpass"
+  | "toprated"
+  | "under30"
+  | "free"
+  | "p1"
+  | "p2"
+  | "p3"
+  | "p4";
 const FILTERS: { key: FilterKey; label: string }[] = [
-  { key: 'deals', label: 'Deals' },
-  { key: 'dashpass', label: 'DashPass' },
-  { key: 'toprated', label: 'Top rated' },
-  { key: 'under30', label: 'Under 30 min' },
-  { key: 'free', label: 'Free delivery' },
-  { key: 'p1', label: '$' },
-  { key: 'p2', label: '$$' },
-  { key: 'p3', label: '$$$' },
-  { key: 'p4', label: '$$$$' },
+  { key: "deals", label: "Deals" },
+  { key: "dashpass", label: "DashPass" },
+  { key: "toprated", label: "Top rated" },
+  { key: "under30", label: "Under 30 min" },
+  { key: "free", label: "Free delivery" },
+  { key: "p1", label: "$" },
+  { key: "p2", label: "$$" },
+  { key: "p3", label: "$$$" },
+  { key: "p4", label: "$$$$" },
 ];
-const PRICE_KEYS: FilterKey[] = ['p1', 'p2', 'p3', 'p4'];
+const PRICE_KEYS: FilterKey[] = ["p1", "p2", "p3", "p4"];
 
 function passesFilter(r: RestaurantDetail, key: FilterKey): boolean {
   switch (key) {
-    case 'deals':
-      return r.badges.includes('Promo');
-    case 'dashpass':
-      return r.badges.includes('DashPass');
-    case 'toprated':
+    case "deals":
+      return r.badges.includes("Promo");
+    case "dashpass":
+      return r.badges.includes("DashPass");
+    case "toprated":
       return r.rating >= 4.6;
-    case 'under30':
+    case "under30":
       return r.etaMax <= 30;
-    case 'free':
+    case "free":
       return r.deliveryFeeMinor === 0;
-    case 'p1':
+    case "p1":
       return r.priceLevel === 1;
-    case 'p2':
+    case "p2":
       return r.priceLevel === 2;
-    case 'p3':
+    case "p3":
       return r.priceLevel === 3;
-    case 'p4':
+    case "p4":
       return r.priceLevel === 4;
   }
 }
@@ -71,6 +81,7 @@ export default function Home() {
   const toggleFav = useFavorites((s) => s.toggle);
 
   const [addresses, setAddresses] = useState<Address[]>([]);
+  const [addressSheetVisible, setAddressSheetVisible] = useState(false);
   const [category, setCategory] = useState<string | null>(null);
   const [filters, setFilters] = useState<Set<FilterKey>>(new Set());
 
@@ -78,30 +89,51 @@ export default function Home() {
     loadAddresses().then(setAddresses);
   }, []);
 
-  const addressLabel = addresses.find((a) => a.id === selectedAddressId)?.label ?? 'Set location';
+  const addressLabel =
+    addresses.find((a) => a.id === selectedAddressId)?.label ?? "Set location";
 
   // Category drives a real server refetch; "Top rated" drives sort.
-  const cuisineParam = category && category !== 'deals' ? category : undefined;
-  const sortParam: FeedSort | undefined = filters.has('toprated') ? 'rating' : undefined;
+  const cuisineParam = category && category !== "deals" ? category : undefined;
+  const sortParam: FeedSort | undefined = filters.has("toprated")
+    ? "rating"
+    : undefined;
 
   const cats = useCategories();
-  const feed = useRestaurants(useMemo(() => ({ cuisine: cuisineParam, sort: sortParam }), [cuisineParam, sortParam]));
+  const feed = useRestaurants(
+    useMemo(
+      () => ({ cuisine: cuisineParam, sort: sortParam }),
+      [cuisineParam, sortParam],
+    ),
+  );
 
   // Client-side chip filtering over the fetched feed.
   const filtered = useMemo(() => {
     let list = feed.data ?? [];
-    if (category === 'deals') list = list.filter((r) => r.badges.includes('Promo'));
+    if (category === "deals")
+      list = list.filter((r) => r.badges.includes("Promo"));
     const active = [...filters];
     const priceSel = active.filter((k) => PRICE_KEYS.includes(k));
-    const nonPrice = active.filter((k) => !PRICE_KEYS.includes(k) && k !== 'toprated');
-    if (priceSel.length) list = list.filter((r) => priceSel.some((k) => passesFilter(r, k)));
+    const nonPrice = active.filter(
+      (k) => !PRICE_KEYS.includes(k) && k !== "toprated",
+    );
+    if (priceSel.length)
+      list = list.filter((r) => priceSel.some((k) => passesFilter(r, k)));
     for (const k of nonPrice) list = list.filter((r) => passesFilter(r, k));
     return list;
   }, [feed.data, filters, category]);
 
-  const fastest = useMemo(() => [...filtered].sort((a, b) => a.etaMin - b.etaMin).slice(0, 8), [filtered]);
-  const offers = useMemo(() => filtered.filter((r) => r.badges.includes('Promo')), [filtered]);
-  const popular = useMemo(() => [...filtered].sort((a, b) => b.ratingCount - a.ratingCount), [filtered]);
+  const fastest = useMemo(
+    () => [...filtered].sort((a, b) => a.etaMin - b.etaMin).slice(0, 8),
+    [filtered],
+  );
+  const offers = useMemo(
+    () => filtered.filter((r) => r.badges.includes("Promo")),
+    [filtered],
+  );
+  const popular = useMemo(
+    () => [...filtered].sort((a, b) => b.ratingCount - a.ratingCount),
+    [filtered],
+  );
 
   const toggleFilter = (key: FilterKey) =>
     setFilters((prev) => {
@@ -117,15 +149,15 @@ export default function Home() {
   const openRestaurant = (id: string) => router.push(`/restaurant/${id}`);
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <SafeAreaView style={styles.safe} edges={["top"]}>
       <View style={styles.header}>
         <LocationHeader
           addressLabel={addressLabel}
           cartCount={cartCount}
-          onPressCart={() => router.push('/cart')}
-          onPressLocation={() => {}}
+          onPressCart={() => router.push("/cart")}
+          onPressLocation={() => setAddressSheetVisible(true)}
         />
-        <SearchPillButton onPress={() => router.push('/(tabs)/search')} />
+        <SearchPillButton onPress={() => router.push("/(tabs)/search")} />
       </View>
 
       <ScrollView
@@ -152,16 +184,27 @@ export default function Home() {
             <CategoryIcon
               category={item}
               selected={category === item.id}
-              onPress={() => setCategory((c) => (c === item.id ? null : item.id))}
+              onPress={() =>
+                setCategory((c) => (c === item.id ? null : item.id))
+              }
             />
           )}
           ListEmptyComponent={<CategoryRowSkeleton />}
         />
 
         {/* Filter chips */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.chipRow}
+        >
           {FILTERS.map((f) => (
-            <Chip key={f.key} label={f.label} selected={filters.has(f.key)} onPress={() => toggleFilter(f.key)} />
+            <Chip
+              key={f.key}
+              label={f.label}
+              selected={filters.has(f.key)}
+              onPress={() => toggleFilter(f.key)}
+            />
           ))}
         </ScrollView>
 
@@ -198,7 +241,12 @@ export default function Home() {
                 keyExtractor={(r) => r.id}
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.hcards}
-                renderItem={({ item }) => <RestaurantCardWide restaurant={item} onPress={() => openRestaurant(item.id)} />}
+                renderItem={({ item }) => (
+                  <RestaurantCardWide
+                    restaurant={item}
+                    onPress={() => openRestaurant(item.id)}
+                  />
+                )}
               />
             </View>
 
@@ -249,7 +297,20 @@ export default function Home() {
         <View style={{ height: cartCount > 0 ? 96 : 24 }} />
       </ScrollView>
 
-      <CartBar itemCount={cartCount} subtotalMinor={cartSubtotal} onPress={() => router.push('/cart')} />
+      <CartBar
+        itemCount={cartCount}
+        subtotalMinor={cartSubtotal}
+        onPress={() => router.push("/cart")}
+      />
+
+      <AddressPickerSheet
+        visible={addressSheetVisible}
+        addresses={addresses}
+        selectedAddressId={selectedAddressId}
+        onClose={() => setAddressSheetVisible(false)}
+        onSelect={(address) => useSession.getState().setAddress(address.id)}
+        onAddressesChange={setAddresses}
+      />
     </SafeAreaView>
   );
 }
@@ -257,9 +318,9 @@ export default function Home() {
 function CategoryRowSkeleton() {
   const styles = useStyles();
   return (
-    <View style={[styles.catRow, { flexDirection: 'row' }]}>
+    <View style={[styles.catRow, { flexDirection: "row" }]}>
       {Array.from({ length: 6 }).map((_, i) => (
-        <View key={i} style={{ alignItems: 'center', gap: 6, width: 68 }}>
+        <View key={i} style={{ alignItems: "center", gap: 6, width: 68 }}>
           <Skeleton width={60} height={60} radius={999} />
           <Skeleton width={48} height={12} />
         </View>
@@ -276,7 +337,7 @@ function FeedSkeleton() {
         <View style={styles.sectionHead}>
           <Skeleton width="55%" height={22} />
         </View>
-        <View style={[styles.hcards, { flexDirection: 'row' }]}>
+        <View style={[styles.hcards, { flexDirection: "row" }]}>
           {Array.from({ length: 2 }).map((_, i) => (
             <View key={i} style={{ width: 260 }}>
               <RestaurantCardSkeleton />
@@ -301,10 +362,23 @@ function FeedSkeleton() {
 function useStyles() {
   return useThemedStyles((t) => ({
     safe: { flex: 1, backgroundColor: t.colors.bg },
-    header: { paddingHorizontal: t.screenPaddingX, paddingTop: t.spacing.sm, paddingBottom: t.spacing.sm, gap: t.spacing.sm },
+    header: {
+      paddingHorizontal: t.screenPaddingX,
+      paddingTop: t.spacing.sm,
+      paddingBottom: t.spacing.sm,
+      gap: t.spacing.sm,
+    },
     scroll: { paddingBottom: t.spacing.xl },
-    catRow: { paddingHorizontal: t.screenPaddingX, gap: t.spacing.md, paddingVertical: t.spacing.sm },
-    chipRow: { paddingHorizontal: t.screenPaddingX, gap: t.spacing.sm, paddingBottom: t.spacing.md },
+    catRow: {
+      paddingHorizontal: t.screenPaddingX,
+      gap: t.spacing.md,
+      paddingVertical: t.spacing.sm,
+    },
+    chipRow: {
+      paddingHorizontal: t.screenPaddingX,
+      gap: t.spacing.sm,
+      paddingBottom: t.spacing.md,
+    },
     section: { gap: t.spacing.md, paddingTop: t.spacing.sm },
     sectionHead: { paddingHorizontal: t.screenPaddingX },
     hcards: { paddingHorizontal: t.screenPaddingX, gap: t.spacing.md },

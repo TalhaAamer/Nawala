@@ -31,11 +31,6 @@ export default function RootLayout() {
     Inter_800ExtraBold,
   });
 
-  if (!fontsLoaded && !fontError) {
-    // Keep splash visible; nothing rendered yet.
-    return null;
-  }
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
@@ -43,7 +38,7 @@ export default function RootLayout() {
           <BottomSheetModalProvider>
             <CartIconTargetProvider>
               <FlyToCartProvider>
-                <RootNavigator />
+                <RootNavigator fontsReady={fontsLoaded || !!fontError} />
               </FlyToCartProvider>
             </CartIconTargetProvider>
           </BottomSheetModalProvider>
@@ -54,7 +49,7 @@ export default function RootLayout() {
 }
 
 /** Lives under ThemeProvider so it can read the resolved scheme + hydration state. */
-function RootNavigator() {
+function RootNavigator({ fontsReady }: { fontsReady: boolean }) {
   const { theme, scheme, hydrated: themeHydrated } = useTheme();
   const sessionHydrated = useSession((s) => s.hydrated);
   const [ordersRestored, setOrdersRestored] = useState(false);
@@ -65,15 +60,11 @@ function RootNavigator() {
     return () => orderClock.stopAll();
   }, []);
 
-  const ready = themeHydrated && sessionHydrated && ordersRestored;
+  const ready = fontsReady && themeHydrated && sessionHydrated && ordersRestored;
 
   useEffect(() => {
     if (ready) void SplashScreen.hideAsync();
   }, [ready]);
-
-  if (!ready) {
-    return null;
-  }
 
   return (
     <>

@@ -7,14 +7,14 @@ import { defaultAddressId } from '@/mocks';
 
 export type SessionUser =
   | { kind: 'guest' }
-  | { kind: 'user'; id: string; email?: string; phone?: string };
+  | { kind: 'user'; id: string; email?: string; phone?: string; displayName?: string; photoURL?: string };
 
 type SessionState = {
   user: SessionUser | null;
   selectedAddressId: string | null;
   /** True once persisted session has rehydrated (gates splash + first paint). */
   hydrated: boolean;
-  signIn: (payload: { id: string; email?: string; phone?: string }) => void;
+  signIn: (payload: { id: string; email?: string; phone?: string; displayName?: string; photoURL?: string }) => void;
   continueAsGuest: () => void;
   signOut: () => void;
   setAddress: (id: string) => void;
@@ -28,7 +28,7 @@ export const useSession = create<SessionState>()(
       selectedAddressId: defaultAddressId,
       hydrated: false,
 
-      signIn: ({ id, email, phone }) => set({ user: { kind: 'user', id, email, phone } }),
+      signIn: ({ id, email, phone, displayName, photoURL }) => set({ user: { kind: 'user', id, email, phone, displayName, photoURL } }),
       continueAsGuest: () => set({ user: { kind: 'guest' } }),
       signOut: () => set({ user: null }),
       setAddress: (id) => set({ selectedAddressId: id }),

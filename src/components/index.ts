@@ -9,6 +9,7 @@ export { QuantityStepper, type QuantityStepperProps } from './QuantityStepper';
 // Inputs & headers
 export { SearchPillButton, SearchPillInput } from './SearchPill';
 export { LocationHeader, type LocationHeaderProps } from './LocationHeader';
+export { AddressPickerSheet, type AddressPickerSheetProps } from './AddressPickerSheet';
 export { SectionHeader, type SectionHeaderProps } from './SectionHeader';
 
 // Cards

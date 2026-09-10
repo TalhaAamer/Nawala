@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FlatList, ScrollView, Switch, Text, TextInput, View } from 'react-native';
+import { FlatList, Image, ScrollView, Switch, Text, TextInput, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -34,7 +34,7 @@ export default function Account() {
   const restaurants = useRestaurants();
 
   const isUser = user?.kind === 'user';
-  const name = isUser ? (user.email ?? user.phone ?? 'Crave member') : 'Guest';
+  const name = isUser ? (user.displayName ?? user.email ?? user.phone ?? 'Nawala member') : 'Guest';
   const initials = isUser ? name.charAt(0).toUpperCase() : 'G';
 
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -82,12 +82,16 @@ export default function Account() {
 
         {/* 1 · Header */}
         <View style={styles.profileCard}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{initials}</Text>
-          </View>
+          {isUser && user.photoURL ? (
+            <Image source={{ uri: user.photoURL }} style={styles.avatarImage} accessibilityLabel={`${name} profile photo`} />
+          ) : (
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>{initials}</Text>
+            </View>
+          )}
           <View style={{ flex: 1 }}>
             <Text style={styles.name} numberOfLines={1}>{name}</Text>
-            <Text style={styles.sub}>{isUser ? 'Crave member' : 'Browsing as guest'}</Text>
+            <Text style={styles.sub}>{isUser ? 'Nawala member' : 'Browsing as guest'}</Text>
           </View>
           {!isUser ? (
             <Button label="Sign in" fullWidth={false} onPress={() => router.push({ pathname: '/(auth)/sign-in', params: { reason: 'account' } })} />
@@ -170,7 +174,7 @@ export default function Account() {
         <Section title="About">
           <LinkRow label="Terms of Service" onPress={() => { setLegalTitle('Terms of Service'); setSheet('legal'); }} />
           <LinkRow label="Privacy Policy" onPress={() => { setLegalTitle('Privacy Policy'); setSheet('legal'); }} />
-          <Text style={styles.version}>Crave v{Constants.expoConfig?.version ?? '1.0.0'} · demo build</Text>
+          <Text style={styles.version}>Nawala v{Constants.expoConfig?.version ?? '1.0.0'} · demo build</Text>
         </Section>
 
         {isUser ? (
@@ -209,7 +213,7 @@ export default function Account() {
       {/* Legal sheet */}
       <Sheet visible={sheet === 'legal'} onClose={() => setSheet(null)} title={legalTitle}>
         <Text style={styles.legalText}>
-          This is a demo build of Crave. No real account, payment, or delivery is provided. All data lives on your device
+          This is a demo build of Nawala. No real account, payment, or delivery is provided. All data lives on your device
           and can be cleared at any time. {legalTitle} content is placeholder text for demonstration only.
         </Text>
         <Button label="Got it" onPress={() => setSheet(null)} />
@@ -329,6 +333,7 @@ function useStyles() {
     title: { ...t.typography.display, color: t.colors.textPrimary },
     profileCard: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: t.spacing.md, backgroundColor: t.colors.surface, borderRadius: t.radii.lg, padding: t.spacing.lg, borderWidth: 1, borderColor: t.colors.border },
     avatar: { width: 52, height: 52, borderRadius: t.radii.pill, backgroundColor: t.colors.accentSoft, alignItems: 'center' as const, justifyContent: 'center' as const },
+    avatarImage: { width: 52, height: 52, borderRadius: t.radii.pill },
     avatarText: { ...t.typography.titleLg, color: t.colors.onAccentSoft },
     name: { ...t.typography.title, color: t.colors.textPrimary },
     sub: { ...t.typography.meta, color: t.colors.textSecondary },

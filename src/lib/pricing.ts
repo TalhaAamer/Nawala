@@ -6,9 +6,9 @@ export const SERVICE_FEE_RATE = 0.1; // 10% of subtotal
 export const SERVICE_FEE_MIN_MINOR = 199; // $1.99 floor
 export const TAX_RATE = 0.08; // 8% of subtotal
 
-export type PromoCode = 'CRAVE10';
+export type PromoCode = 'NAWALA10';
 const PROMOS: Record<string, { kind: 'percent'; value: number; label: string }> = {
-  CRAVE10: { kind: 'percent', value: 10, label: '10% off your order' },
+  NAWALA10: { kind: 'percent', value: 10, label: '10% off your order' },
 };
 
 export function validatePromo(code: string): { ok: boolean; label?: string } {

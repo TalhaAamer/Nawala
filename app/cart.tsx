@@ -119,7 +119,7 @@ export default function CartScreen() {
                     setPromoInput(t);
                     setPromoError(null);
                   }}
-                  placeholder="Promo code (try CRAVE10)"
+                  placeholder="Promo code (try NAWALA10)"
                   placeholderTextColor={theme.colors.textTertiary}
                   autoCapitalize="characters"
                   style={styles.promoInput}

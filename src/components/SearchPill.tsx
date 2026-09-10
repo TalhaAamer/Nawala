@@ -11,7 +11,7 @@ type CommonProps = {
 
 /** Static (button) variant — taps route to the Search screen. */
 export function SearchPillButton({
-  placeholder = 'Search Crave',
+  placeholder = 'Search Nawala',
   onPress,
 }: CommonProps & { onPress?: () => void }) {
   const { theme } = useTheme();
@@ -31,7 +31,7 @@ export function SearchPillButton({
 
 /** Interactive input variant — used on the Search screen. */
 export const SearchPillInput = forwardRef<TextInput, CommonProps & TextInputProps>(
-  function SearchPillInput({ placeholder = 'Search Crave', value, onChangeText, ...rest }, ref) {
+  function SearchPillInput({ placeholder = 'Search Nawala', value, onChangeText, ...rest }, ref) {
     const { theme } = useTheme();
     const styles = usePillStyles();
     return (
